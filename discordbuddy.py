@@ -9,14 +9,11 @@ from discord.ext import commands
 from discord.ext.commands import bot
 from dotenv import load_dotenv
 
-
 load_dotenv()
-TOKEN = 'NzM3MDY1MjI1NDA0MDIyODk0.Xx37ew.-_Eoo3gsPl0sHxufElLFuO0iTCQ'
-GUILD = 's'
+TOKEN = 'INSERT_TOKEN_HERE'
+GUILD = 'Nerds'
 
 bot = commands.Bot(command_prefix = '!')
-#client = discord.Client()
-print("hello world")
 
 @bot.event
 async def on_ready():
@@ -33,16 +30,12 @@ async def youtube(ctx, *, search):
     query = urllib.parse.urlencode({
         'search_query': search
     })
-
     content = urllib.request.urlopen(
         'http://www.youtube.com/results?' + query
     )
-
     search_results = re.findall('/watch\?v=(.{11})', content.read().decode())
     await ctx.send('http://www.youtube.com/watch?v=' + random.choice(search_results[0:5]))
-   
-
-    
+     
 bot.run(TOKEN)
 
 
