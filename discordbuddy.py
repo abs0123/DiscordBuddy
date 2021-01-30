@@ -1,6 +1,7 @@
 # bot.py
 import os
 
+import json
 import discord
 import random
 import urllib.parse, urllib.request, re
@@ -10,7 +11,7 @@ from discord.ext.commands import bot
 from dotenv import load_dotenv
 
 load_dotenv()
-TOKEN = 'INSERT_TOKEN_HERE'
+TOKEN = 'INSERT_TOKEN'
 GUILD = 'Nerds'
 
 bot = commands.Bot(command_prefix = '!')
@@ -35,7 +36,13 @@ async def youtube(ctx, *, search):
     )
     search_results = re.findall('/watch\?v=(.{11})', content.read().decode())
     await ctx.send('http://www.youtube.com/watch?v=' + random.choice(search_results[0:5]))
+
+@bot.command(pass_context=True)
+async def randomfact(ctx):
+    content = urllib.request.urlopen(
+        'https://uselessfacts.jsph.pl/random.json?language=en'
+    )
+    jsonobj = json.loads(content.read().decode())
+    await ctx.send(jsonobj['text'])
      
 bot.run(TOKEN)
-
-
