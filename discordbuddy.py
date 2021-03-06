@@ -4,11 +4,19 @@ import os
 import json
 import discord
 import random
-import urllib.parse, urllib.request, re
+import random
+import requests
+import re
+import sys
+import os
+import http.cookiejar
+import json
+import urllib.request, urllib.error, urllib.parse, re
 
 from discord.ext import commands
 from discord.ext.commands import bot
 from dotenv import load_dotenv
+from bs4 import BeautifulSoup
 
 load_dotenv()
 TOKEN = 'INSERT_TOKEN'
@@ -18,13 +26,7 @@ bot = commands.Bot(command_prefix = '!')
 
 @bot.event
 async def on_ready():
-    print(f'user has connected to Discord!')
-
-#@bot.event
-#async def on_message(message):
-#    if ("memebot" or "MemeBot" or "MemeBot" in message.content) and ("Hi, I'm Memebot and I think you have a large pee-pee! UwU" not in message.content):
-#        await message.channel.send("Hi, I'm Memebot and I think you have a large pee-pee! UwU")
-    
+    print(f'user has connected to Discord!')    
   
 @bot.command(pass_context=True)
 async def youtube(ctx, *, search):
@@ -44,5 +46,30 @@ async def randomfact(ctx):
     )
     jsonobj = json.loads(content.read().decode())
     await ctx.send(jsonobj['text'])
+
+@bot.command(pass_context=True)
+async def meme(ctx, *, search):
+    await ctx.send(bing_image_search(search.split(' ')))
+
+
+def get_soup(url,header):
+    return BeautifulSoup(urllib.request.urlopen(
+        urllib.request.Request(url,headers=header)),
+        'html.parser')
+
+def bing_image_search(search):
+    query = '%20'
+    query = query.join(search)
+    url="http://www.bing.com/images/search?q=" + query + "%20meme&FORM=HDRSC2"
+    header={'User-Agent':"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36"}
+    soup = get_soup(url,header)
+    ActualImages=[] # contains the link for Large original images
+    for a in soup.find_all("a",{"class":"iusc"}):
+        m = json.loads(a["m"])
+        murl = m["murl"] # mobile image
+        turl = m["turl"] # desktop image
+        ActualImages.append(turl)
+    
+    return ActualImages[random.randint(0, len(ActualImages) - 10)]
      
 bot.run(TOKEN)
